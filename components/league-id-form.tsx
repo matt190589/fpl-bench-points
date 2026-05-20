@@ -9,11 +9,12 @@ export function LeagueIdForm({ defaultLeagueId }: { defaultLeagueId: string }) {
   const [leagueId, setLeagueId] = useState(defaultLeagueId);
   const [loading, setLoading] = useState(false);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const id = leagueId.trim();
     if (!id) return;
     setLoading(true);
+    await new Promise((resolve) => setTimeout(resolve, 3000));
     router.push(`/league/${id}`);
   }
 
@@ -39,7 +40,7 @@ export function LeagueIdForm({ defaultLeagueId }: { defaultLeagueId: string }) {
       <button
         type="submit"
         disabled={!leagueId.trim()}
-        className="rounded-lg bg-fpl-green px-5 py-2 text-sm font-bold text-white transition-opacity disabled:opacity-40 hover:opacity-90"
+        className="rounded-lg bg-fpl-green px-5 py-2 text-sm font-bold text-fpl-purple transition-opacity disabled:opacity-40 hover:opacity-90"
       >
         Go
       </button>
