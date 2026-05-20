@@ -88,7 +88,7 @@ export function BenchTable({ managers, currentGw }: Props) {
               style={{ background: "linear-gradient(90deg, #37003c 0%, #520059 100%)" }}
             >
               <TableHead className="w-10 text-center text-white font-semibold">#</TableHead>
-              <TableHead className="text-white font-semibold">Manager</TableHead>
+              <TableHead className="text-white font-semibold max-[540px]:hidden">Manager</TableHead>
               <TableHead className="text-white font-semibold">Team</TableHead>
               {th("total", "Total", "text-right [&>button]:ml-auto")}
               {th("avg", "Avg/GW", "text-right [&>button]:ml-auto")}
@@ -107,7 +107,7 @@ export function BenchTable({ managers, currentGw }: Props) {
                   className="hover:bg-muted/40 transition-colors"
                 >
                   <TableCell className="text-center text-muted-foreground font-medium">{i + 1}</TableCell>
-                  <TableCell className="font-semibold">{m.manager_name}</TableCell>
+                  <TableCell className="font-semibold max-[540px]:hidden">{m.manager_name}</TableCell>
                   <TableCell className="text-muted-foreground text-sm">{m.team_name}</TableCell>
                   <TableCell className="text-right">
                     <span className={`font-mono font-bold text-base ${isTop ? "text-fpl-purple" : ""}`}>
