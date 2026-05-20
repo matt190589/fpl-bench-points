@@ -2,15 +2,28 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
 export function LeagueIdForm({ defaultLeagueId }: { defaultLeagueId: string }) {
   const router = useRouter();
   const [leagueId, setLeagueId] = useState(defaultLeagueId);
+  const [loading, setLoading] = useState(false);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const id = leagueId.trim();
-    if (id) router.push(`/league/${id}`);
+    if (!id) return;
+    setLoading(true);
+    router.push(`/league/${id}`);
+  }
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center gap-3 py-4">
+        <Loader2 className="h-8 w-8 animate-spin text-white" />
+        <p className="text-lg font-semibold text-white">Calculating bad managerial decisions…</p>
+      </div>
+    );
   }
 
   return (
