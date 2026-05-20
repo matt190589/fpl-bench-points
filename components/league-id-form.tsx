@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 
 export function LeagueIdForm({ defaultLeagueId }: { defaultLeagueId: string }) {
   const router = useRouter();
@@ -17,17 +15,21 @@ export function LeagueIdForm({ defaultLeagueId }: { defaultLeagueId: string }) {
 
   return (
     <form onSubmit={handleSubmit} className="flex gap-2">
-      <Input
+      <input
         type="text"
         inputMode="numeric"
         placeholder="League ID"
         value={leagueId}
         onChange={(e) => setLeagueId(e.target.value)}
-        className="flex-1"
+        className="flex-1 rounded-lg border border-white/40 bg-white/10 px-3 py-2 text-sm text-white placeholder:text-white outline-none focus:border-fpl-green focus:ring-2 focus:ring-fpl-green/30 transition-colors"
       />
-      <Button type="submit" disabled={!leagueId.trim()}>
+      <button
+        type="submit"
+        disabled={!leagueId.trim()}
+        className="rounded-lg bg-fpl-green px-5 py-2 text-sm font-bold text-white transition-opacity disabled:opacity-40 hover:opacity-90"
+      >
         Go
-      </Button>
+      </button>
     </form>
   );
 }

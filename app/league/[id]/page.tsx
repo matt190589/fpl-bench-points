@@ -3,6 +3,7 @@ import { getLeagueDetails, getLiveData, getEntryPicks, finishedGameweeks, FPLErr
 import { aggregateLeague } from "@/lib/bench";
 import { BenchTable } from "@/components/bench-table";
 import { Skeleton } from "@/components/ui/skeleton";
+import Link from "next/link";
 
 async function LeagueContent({ id }: { id: string }) {
   let details;
@@ -11,9 +12,14 @@ async function LeagueContent({ id }: { id: string }) {
   } catch (err) {
     const message = err instanceof FPLError ? err.message : "Failed to load league data.";
     return (
-      <div className="rounded-md border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
-        {message}
-      </div>
+      <>
+        <PageHeader leagueName="League not found" subtitle="" updatedAt="" />
+        <main className="mx-auto max-w-5xl px-4 py-8">
+          <div className="rounded-md border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+            {message}
+          </div>
+        </main>
+      </>
     );
   }
 
@@ -40,37 +46,60 @@ async function LeagueContent({ id }: { id: string }) {
   const liveByGw = new Map(liveResults.map((r) => [r.gw, r.live]));
   const managers = aggregateLeague(entries, finishedGws, picksByKey, liveByGw);
   const currentGw = finishedGws[finishedGws.length - 1] ?? 0;
+  const updatedAt = new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-baseline justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">{details.league.name}</h1>
-          <p className="text-sm text-muted-foreground">GW 1–{currentGw} · bench points left on the pitch</p>
+    <>
+      <PageHeader
+        leagueName={details.league.name}
+        subtitle={`GW 1–${currentGw} · bench points left on the pitch`}
+        updatedAt={updatedAt}
+      />
+      <main className="mx-auto max-w-5xl px-4 py-8">
+        <BenchTable managers={managers} currentGw={currentGw} />
+      </main>
+    </>
+  );
+}
+
+function PageHeader({ leagueName, subtitle, updatedAt }: { leagueName: string; subtitle: string; updatedAt: string }) {
+  return (
+    <header className="bg-fpl-purple text-white" style={{ background: "linear-gradient(135deg, #37003c 0%, #520059 100%)" }}>
+      <div className="mx-auto max-w-5xl px-4 py-6">
+        <div className="flex items-start justify-between gap-4">
+          <div className="space-y-1">
+            <Link href="/" className="text-xs text-fpl-green hover:underline">← All leagues</Link>
+            <h1 className="text-xl font-bold tracking-tight sm:text-2xl">{leagueName}</h1>
+            {subtitle && <p className="text-sm text-white/60">{subtitle}</p>}
+          </div>
+          {updatedAt && (
+            <p className="shrink-0 text-xs text-white/40 pt-5">Updated {updatedAt}</p>
+          )}
         </div>
-        <p className="shrink-0 text-xs text-muted-foreground">
-          Updated {new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
-        </p>
       </div>
-      <BenchTable managers={managers} currentGw={currentGw} />
-    </div>
+    </header>
   );
 }
 
 function TableSkeleton() {
   return (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <Skeleton className="h-8 w-64" />
-        <Skeleton className="h-4 w-40" />
-      </div>
-      <div className="space-y-2">
-        <Skeleton className="h-10 w-full" />
-        {Array.from({ length: 8 }).map((_, i) => (
-          <Skeleton key={i} className="h-12 w-full" />
-        ))}
-      </div>
-    </div>
+    <>
+      <header className="bg-fpl-purple" style={{ background: "linear-gradient(135deg, #37003c 0%, #520059 100%)" }}>
+        <div className="mx-auto max-w-5xl px-4 py-6 space-y-2">
+          <Skeleton className="h-3 w-24 bg-white/20" />
+          <Skeleton className="h-7 w-64 bg-white/20" />
+          <Skeleton className="h-3 w-40 bg-white/20" />
+        </div>
+      </header>
+      <main className="mx-auto max-w-5xl px-4 py-8">
+        <div className="space-y-2">
+          <Skeleton className="h-11 w-full" />
+          {Array.from({ length: 8 }).map((_, i) => (
+            <Skeleton key={i} className="h-14 w-full" />
+          ))}
+        </div>
+      </main>
+    </>
   );
 }
 
@@ -82,10 +111,10 @@ export default async function LeaguePage({
   const { id } = await params;
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-10">
+    <div className="min-h-screen bg-background">
       <Suspense fallback={<TableSkeleton />}>
         <LeagueContent id={id} />
       </Suspense>
-    </main>
+    </div>
   );
 }

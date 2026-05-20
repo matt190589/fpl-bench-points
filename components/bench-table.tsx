@@ -33,10 +33,10 @@ function gwStats(benchByGw: ManagerBenchSummary["bench_by_gw"]) {
 }
 
 function SortIcon({ col, active, dir }: { col: SortCol; active: SortCol; dir: SortDir }) {
-  if (col !== active) return <ArrowUpDown className="ml-1 h-3 w-3 opacity-40" />;
+  if (col !== active) return <ArrowUpDown className="ml-1 h-3 w-3 opacity-50" />;
   return dir === "desc"
-    ? <ArrowDown className="ml-1 h-3 w-3" />
-    : <ArrowUp className="ml-1 h-3 w-3" />;
+    ? <ArrowDown className="ml-1 h-3 w-3 text-fpl-green" />
+    : <ArrowUp className="ml-1 h-3 w-3 text-fpl-green" />;
 }
 
 export function BenchTable({ managers, currentGw }: Props) {
@@ -66,49 +66,66 @@ export function BenchTable({ managers, currentGw }: Props) {
     });
   }, [managers, sortCol, sortDir]);
 
-  const colHeader = (col: SortCol, label: string) => (
-    <button
-      onClick={() => handleSort(col)}
-      className="flex items-center font-medium hover:text-foreground transition-colors"
-    >
-      {label}
-      <SortIcon col={col} active={sortCol} dir={sortDir} />
-    </button>
+  const th = (col: SortCol, label: string, className = "") => (
+    <TableHead className={`text-white ${className}`}>
+      <button
+        onClick={() => handleSort(col)}
+        className={`flex items-center gap-0.5 font-semibold transition-colors ${sortCol === col ? "text-fpl-green" : ""}`}
+      >
+        {label}
+        <SortIcon col={col} active={sortCol} dir={sortDir} />
+      </button>
+    </TableHead>
   );
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="w-10 text-center">#</TableHead>
-          <TableHead>Manager</TableHead>
-          <TableHead>Team</TableHead>
-          <TableHead className="text-right">{colHeader("total", "Total")}</TableHead>
-          <TableHead className="text-right">{colHeader("avg", "Avg/GW")}</TableHead>
-          <TableHead className="text-right">{colHeader("best", "Most Points on Bench")}</TableHead>
-          <TableHead className="text-right">GW</TableHead>
-          <TableHead className="text-center">Season</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {sorted.map((m, i) => {
-          const { avg, best, bestGw } = gwStats(m.bench_by_gw);
-          return (
-            <TableRow key={m.entry_id}>
-              <TableCell className="text-center text-muted-foreground">{i + 1}</TableCell>
-              <TableCell className="font-medium">{m.manager_name}</TableCell>
-              <TableCell className="text-muted-foreground">{m.team_name}</TableCell>
-              <TableCell className="text-right font-mono font-semibold">{m.total_bench_points}</TableCell>
-              <TableCell className="text-right font-mono">{avg.toFixed(1)}</TableCell>
-              <TableCell className="text-right font-mono">{best}</TableCell>
-              <TableCell className="text-right font-mono text-muted-foreground">GW {bestGw}</TableCell>
-              <TableCell className="text-center">
-                <BenchSparkline data={m.bench_by_gw} />
-              </TableCell>
+    <div className="rounded-xl border border-border overflow-hidden shadow-sm">
+      {/* horizontal scroll wrapper for mobile */}
+      <div className="overflow-x-auto">
+        <Table className="min-w-[680px]">
+          <TableHeader>
+            <TableRow className="bg-fpl-purple hover:bg-fpl-purple border-none"
+              style={{ background: "linear-gradient(90deg, #37003c 0%, #520059 100%)" }}
+            >
+              <TableHead className="w-10 text-center text-white font-semibold">#</TableHead>
+              <TableHead className="text-white font-semibold">Manager</TableHead>
+              <TableHead className="text-white font-semibold">Team</TableHead>
+              {th("total", "Total", "text-right [&>button]:ml-auto")}
+              {th("avg", "Avg/GW", "text-right [&>button]:ml-auto")}
+              {th("best", "Most on Bench", "text-right [&>button]:ml-auto")}
+              <TableHead className="text-right text-white font-semibold">GW</TableHead>
+              <TableHead className="text-center text-white font-semibold">Season</TableHead>
             </TableRow>
-          );
-        })}
-      </TableBody>
-    </Table>
+          </TableHeader>
+          <TableBody>
+            {sorted.map((m, i) => {
+              const { avg, best, bestGw } = gwStats(m.bench_by_gw);
+              const isTop = i === 0;
+              return (
+                <TableRow
+                  key={m.entry_id}
+                  className="hover:bg-muted/40 transition-colors"
+                >
+                  <TableCell className="text-center text-muted-foreground font-medium">{i + 1}</TableCell>
+                  <TableCell className="font-semibold">{m.manager_name}</TableCell>
+                  <TableCell className="text-muted-foreground text-sm">{m.team_name}</TableCell>
+                  <TableCell className="text-right">
+                    <span className={`font-mono font-bold text-base ${isTop ? "text-fpl-purple" : ""}`}>
+                      {m.total_bench_points}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-right font-mono text-sm">{avg.toFixed(1)}</TableCell>
+                  <TableCell className="text-right font-mono font-semibold">{best}</TableCell>
+                  <TableCell className="text-right font-mono text-sm text-muted-foreground">GW {bestGw}</TableCell>
+                  <TableCell className="text-center">
+                    <BenchSparkline data={m.bench_by_gw} />
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
   );
 }
